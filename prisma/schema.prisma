@@ -1,0 +1,235 @@
+generator client {
+  provider        = "prisma-client-js"
+  //output   = "../node_modules/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model biome {
+  biome_id       Int              @id @default(autoincrement())
+  biome_name     String           @db.VarChar(32)
+  biome_location typeBiome
+  spread         Float            @db.Real
+  description    String
+  biomestructure biomeStructure[]
+  creaturebiome  creatureBiome[]
+  itemsinbiome   itemsInBiome[]
+}
+
+model biomeStructure {
+  structure_id Int
+  biome_id     Int
+  biome        biome      @relation(fields: [biome_id], references: [biome_id], onDelete: NoAction, onUpdate: NoAction)
+  structures   structures @relation(fields: [structure_id], references: [structure_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([structure_id, biome_id])
+}
+
+model characterFeature {
+  feature_id    Int
+  character_id  Int
+  gamecharacter gameCharacter @relation(fields: [character_id], references: [character_id], onDelete: NoAction, onUpdate: NoAction)
+  featureskill  featureSkill  @relation(fields: [feature_id], references: [feature_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([feature_id, character_id])
+}
+
+model creature {
+  creature_id       Int                 @id @default(autoincrement())
+  creature_name     String              @db.VarChar(32)
+  behaviour         typeBehaviour
+  health            Int                 @db.SmallInt
+  speed_move        Float?              @db.Real
+  speed_attack      Float?              @db.Real
+  strength_attack   Int?                @db.SmallInt
+  is_deleted        Boolean             @default(false)
+  description       String
+  creaturebiome     creatureBiome[]
+  creaturedrop      creatureDrop[]
+  creatureforseason creatureForSeason[]
+  structurecreature structureCreature[]
+  summoncreature    summonCreature[]
+}
+
+model creatureBiome {
+  biome_id    Int
+  creature_id Int
+  biome       biome    @relation(fields: [biome_id], references: [biome_id], onDelete: NoAction, onUpdate: NoAction)
+  creature    creature @relation(fields: [creature_id], references: [creature_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([biome_id, creature_id])
+}
+
+model creatureDrop {
+  creature_id           Int
+  item_id               Int
+  quantity_of_resources Int      @db.SmallInt
+  drop_chance           Int      @db.SmallInt
+  creature              creature @relation(fields: [creature_id], references: [creature_id], onDelete: NoAction, onUpdate: NoAction)
+  item                  item     @relation(fields: [item_id], references: [item_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([creature_id, item_id])
+}
+
+model creatureForSeason {
+  creature_id Int
+  season_id   Int
+  creature    creature @relation(fields: [creature_id], references: [creature_id], onDelete: NoAction, onUpdate: NoAction)
+  season      season   @relation(fields: [season_id], references: [season_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([creature_id, season_id])
+}
+
+model eventForSeason {
+  event_id  Int
+  season_id Int
+  events    events @relation(fields: [event_id], references: [event_id], onDelete: NoAction, onUpdate: NoAction)
+  season    season @relation(fields: [season_id], references: [season_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([event_id, season_id])
+}
+
+model events {
+  event_id       Int              @id @default(autoincrement())
+  event_name     String           @db.VarChar(32)
+  description    String
+  eventforseason eventForSeason[]
+  structureevent structureEvent[]
+  summoncreature summonCreature[]
+}
+
+model featureSkill {
+  feature_id       Int                @id @default(autoincrement())
+  feature_skill    String
+  characterfeature characterFeature[]
+}
+
+model gameCharacter {
+  character_id     Int                @id @default(autoincrement())
+  character_name   String             @db.VarChar(32)
+  max_health       Int                @db.SmallInt
+  max_hunger       Int                @db.SmallInt
+  max_sanity       Int                @db.SmallInt
+  speed_move       Float              @db.Real
+  strength_attack  Float              @db.Real
+  description      String
+  characterfeature characterFeature[]
+  startitem        startItem[]
+}
+
+model item {
+  item_id        Int              @id @default(autoincrement())
+  item_name      String           @db.VarChar(32)
+  max_stack      Int              @db.SmallInt
+  durability     Int?             @db.SmallInt
+  recipe_id      Int?             @unique
+  description    String
+  creaturedrop   creatureDrop[]
+  itemsinbiome   itemsInBiome[]
+  itemtoitemtype itemToItemType[]
+  startitem      startItem[]
+}
+
+model itemsInBiome {
+  item_id  Int
+  biome_id Int
+  biome    biome @relation(fields: [biome_id], references: [biome_id], onDelete: NoAction, onUpdate: NoAction)
+  item     item  @relation(fields: [item_id], references: [item_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([biome_id, item_id])
+}
+
+model itemsTypes {
+  item_type_id   Int              @id @default(autoincrement())
+  item_type_name String           @db.VarChar(32)
+  itemtoitemtype itemToItemType[]
+}
+
+model itemToItemType {
+  item_id      Int
+  item_type_id Int
+  item         item       @relation(fields: [item_id], references: [item_id], onDelete: NoAction, onUpdate: NoAction)
+  itemstypes   itemsTypes @relation(fields: [item_type_id], references: [item_type_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([item_id, item_type_id])
+}
+
+model season {
+  season_id         Int                 @id @default(autoincrement())
+  season_name       String              @db.VarChar(32)
+  quantity_of_days  Int                 @db.SmallInt
+  weather           typeWeather
+  description       String
+  creatureforseason creatureForSeason[]
+  eventforseason    eventForSeason[]
+}
+
+model startItem {
+  character_id          Int
+  item_id               Int
+  quantity_of_resources Int           @db.SmallInt
+  gamecharacter         gameCharacter @relation(fields: [character_id], references: [character_id], onDelete: NoAction, onUpdate: NoAction)
+  item                  item          @relation(fields: [item_id], references: [item_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([character_id, item_id])
+  @@map("StartItem")
+}
+
+model structureCreature {
+  creature_id           Int
+  structure_id          Int
+  quantity_of_creatures Int        @db.SmallInt
+  creature              creature   @relation(fields: [creature_id], references: [creature_id], onDelete: NoAction, onUpdate: NoAction)
+  structures            structures @relation(fields: [structure_id], references: [structure_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([creature_id, structure_id])
+}
+
+model structureEvent {
+  event_id     Int
+  structure_id Int
+  events       events     @relation(fields: [event_id], references: [event_id], onDelete: NoAction, onUpdate: NoAction)
+  structures   structures @relation(fields: [structure_id], references: [structure_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([event_id, structure_id])
+}
+
+model structures {
+  structure_id      Int                 @id @default(autoincrement())
+  structure_type    String              @db.VarChar(32)
+  structure_name    String              @db.VarChar(32)
+  description       String
+  biomestructure    biomeStructure[]
+  structurecreature structureCreature[]
+  structureevent    structureEvent[]
+}
+
+model summonCreature {
+  event_id    Int
+  creature_id Int
+  creature    creature @relation(fields: [creature_id], references: [creature_id], onDelete: NoAction, onUpdate: NoAction)
+  events      events   @relation(fields: [event_id], references: [event_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([event_id, creature_id])
+}
+
+enum typeBehaviour {
+  HOSTILE
+  NEUTRAL
+  PASSIVE
+}
+
+enum typeBiome {
+  EARTH
+  CAVE
+}
+
+enum typeWeather {
+  RAIN
+  SNOW
+  SUN
+  LIGHT
+}
