@@ -17,6 +17,8 @@ model biome {
   biomestructure biomeStructure[]
   creaturebiome  creatureBiome[]
   itemsinbiome   itemsInBiome[]
+
+  @@index([biome_name])
 }
 
 model biomeStructure {
@@ -34,7 +36,7 @@ model characterFeature {
   gamecharacter gameCharacter @relation(fields: [character_id], references: [character_id], onDelete: NoAction, onUpdate: NoAction)
   featureskill  featureSkill  @relation(fields: [feature_id], references: [feature_id], onDelete: NoAction, onUpdate: NoAction)
 
-  @@id([feature_id, character_id])
+  @@id([character_id, feature_id])
 }
 
 model creature {
@@ -52,6 +54,9 @@ model creature {
   creatureforseason creatureForSeason[]
   structurecreature structureCreature[]
   summoncreature    summonCreature[]
+
+  @@index([is_deleted])
+  @@index([creature_name])
 }
 
 model creatureBiome {
@@ -61,6 +66,7 @@ model creatureBiome {
   creature    creature @relation(fields: [creature_id], references: [creature_id], onDelete: NoAction, onUpdate: NoAction)
 
   @@id([biome_id, creature_id])
+  @@index([creature_id])
 }
 
 model creatureDrop {
@@ -72,6 +78,7 @@ model creatureDrop {
   item                  item     @relation(fields: [item_id], references: [item_id], onDelete: NoAction, onUpdate: NoAction)
 
   @@id([creature_id, item_id])
+  @@index([item_id])
 }
 
 model creatureForSeason {
@@ -80,7 +87,7 @@ model creatureForSeason {
   creature    creature @relation(fields: [creature_id], references: [creature_id], onDelete: NoAction, onUpdate: NoAction)
   season      season   @relation(fields: [season_id], references: [season_id], onDelete: NoAction, onUpdate: NoAction)
 
-  @@id([creature_id, season_id])
+  @@id([season_id, creature_id])
 }
 
 model eventForSeason {
@@ -89,7 +96,7 @@ model eventForSeason {
   events    events @relation(fields: [event_id], references: [event_id], onDelete: NoAction, onUpdate: NoAction)
   season    season @relation(fields: [season_id], references: [season_id], onDelete: NoAction, onUpdate: NoAction)
 
-  @@id([event_id, season_id])
+  @@id([season_id, event_id])
 }
 
 model events {
@@ -99,6 +106,8 @@ model events {
   eventforseason eventForSeason[]
   structureevent structureEvent[]
   summoncreature summonCreature[]
+
+  @@index([event_name])
 }
 
 model featureSkill {
@@ -118,6 +127,8 @@ model gameCharacter {
   description      String
   characterfeature characterFeature[]
   startitem        startItem[]
+
+  @@index([character_name])
 }
 
 model item {
@@ -131,6 +142,8 @@ model item {
   itemsinbiome   itemsInBiome[]
   itemtoitemtype itemToItemType[]
   startitem      startItem[]
+
+  @@index([item_name])
 }
 
 model itemsInBiome {
@@ -140,6 +153,7 @@ model itemsInBiome {
   item     item  @relation(fields: [item_id], references: [item_id], onDelete: NoAction, onUpdate: NoAction)
 
   @@id([biome_id, item_id])
+  @@index([item_id])
 }
 
 model itemsTypes {
@@ -165,6 +179,8 @@ model season {
   description       String
   creatureforseason creatureForSeason[]
   eventforseason    eventForSeason[]
+
+  @@index([season_name])
 }
 
 model startItem {
@@ -175,7 +191,6 @@ model startItem {
   item                  item          @relation(fields: [item_id], references: [item_id], onDelete: NoAction, onUpdate: NoAction)
 
   @@id([character_id, item_id])
-  @@map("StartItem")
 }
 
 model structureCreature {
@@ -185,7 +200,7 @@ model structureCreature {
   creature              creature   @relation(fields: [creature_id], references: [creature_id], onDelete: NoAction, onUpdate: NoAction)
   structures            structures @relation(fields: [structure_id], references: [structure_id], onDelete: NoAction, onUpdate: NoAction)
 
-  @@id([creature_id, structure_id])
+  @@id([structure_id, creature_id])
 }
 
 model structureEvent {
@@ -194,7 +209,7 @@ model structureEvent {
   events       events     @relation(fields: [event_id], references: [event_id], onDelete: NoAction, onUpdate: NoAction)
   structures   structures @relation(fields: [structure_id], references: [structure_id], onDelete: NoAction, onUpdate: NoAction)
 
-  @@id([event_id, structure_id])
+  @@id([structure_id, event_id])
 }
 
 model structures {

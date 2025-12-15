@@ -177,10 +177,10 @@ async function main() {
   for (const data of itemsInBiomeData) await prisma.itemsInBiome.create({ data });
 
   const creatureForSeasonData = [
-    { creature_id: creatures[4].creature_id, season_id: seasons[3].season_id },
-    { creature_id: creatures[0].creature_id, season_id: seasons[3].season_id },
-    { creature_id: creatures[5].creature_id, season_id: seasons[1].season_id },
-    { creature_id: creatures[0].creature_id, season_id: seasons[0].season_id },
+    { season_id: seasons[3].season_id, creature_id: creatures[4].creature_id },
+    { season_id: seasons[3].season_id, creature_id: creatures[0].creature_id },
+    { season_id: seasons[1].season_id, creature_id: creatures[5].creature_id },
+    { season_id: seasons[0].season_id, creature_id: creatures[0].creature_id },
   ];
   for (const data of creatureForSeasonData) await prisma.creatureForSeason.create({ data });
 
@@ -193,17 +193,17 @@ async function main() {
   for (const e of eventsData) events.push(await prisma.events.create({ data: e }));
 
   const eventForSeasonData = [
-    { event_id: events[0].event_id, season_id: seasons[0].season_id },
+    { season_id: seasons[0].season_id, event_id: events[0].event_id },
   ];
   for (const data of eventForSeasonData) await prisma.eventForSeason.create({ data });
 
   const structureCreatureData = [
-    { creature_id: creatures[4].creature_id, structure_id: structures[4].structure_id, quantity_of_creatures: 2 },
+    { structure_id: structures[4].structure_id, creature_id: creatures[4].creature_id, quantity_of_creatures: 2 },
   ];
   for (const data of structureCreatureData) await prisma.structureCreature.create({ data });
 
   const structureEventData = [
-    { event_id: events[0].event_id, structure_id: structures[3].structure_id },
+    { structure_id: structures[3].structure_id, event_id: events[0].event_id },
   ];
   for (const data of structureEventData) await prisma.structureEvent.create({ data });
 
