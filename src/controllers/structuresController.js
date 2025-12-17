@@ -1,5 +1,6 @@
-const structureService = require("../services/structureService");
+const structureService = require("../services/structuresService");
 const asyncHandler = require("../utils/asyncHandler");
+const { prisma } = require("../prismaClient");
 
 class StructureController {
   createStructure = asyncHandler(async (req, res) => {

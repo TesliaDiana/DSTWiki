@@ -1,5 +1,6 @@
 const itemsInBiomeService = require("../services/itemsInBiomeService");
 const asyncHandler = require("../utils/asyncHandler");
+const { prisma } = require("../prismaClient");
 
 class ItemsInBiomeController {
   createRelation = asyncHandler(async (req, res) => {

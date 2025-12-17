@@ -1,5 +1,6 @@
 const itemService = require("../services/itemService");
 const asyncHandler = require("../utils/asyncHandler");
+const { prisma } = require("../prismaClient");
 
 class ItemController {
   createItem = asyncHandler(async (req, res) => {

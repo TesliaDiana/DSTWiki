@@ -1,5 +1,6 @@
-const seasonService = require("../services/seasonService");
+const seasonService = require("../services/seasonsService");
 const asyncHandler = require("../utils/asyncHandler");
+const { prisma } = require("../prismaClient");
 
 class SeasonController {
   createSeason = asyncHandler(async (req, res) => {

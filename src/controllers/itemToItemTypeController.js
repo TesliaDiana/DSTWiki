@@ -1,5 +1,6 @@
 const itemToItemTypeService = require("../services/itemToItemTypeService");
 const asyncHandler = require("../utils/asyncHandler");
+const { prisma } = require("../prismaClient");
 
 class ItemToItemTypeController {
   createRelation = asyncHandler(async (req, res) => {

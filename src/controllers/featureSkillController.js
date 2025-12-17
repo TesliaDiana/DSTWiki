@@ -1,5 +1,6 @@
 const featureSkillService = require("../services/featureSkillService");
 const asyncHandler = require("../utils/asyncHandler");
+const { prisma } = require("../prismaClient");
 
 class FeatureSkillController {
   createFeature = asyncHandler(async (req, res) => {

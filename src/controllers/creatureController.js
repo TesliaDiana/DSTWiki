@@ -1,42 +1,69 @@
-const creatureService = require("../services/creatureService");
 const asyncHandler = require("../utils/asyncHandler");
+const creatureService = require("../services/creatureService");
 
 class CreatureController {
-  createCreature = asyncHandler(async (req, res) => {
-    const { creatureName, behaviour, health, speedMove, speedAttack, strengthAttack, description } = req.body;
-    if (!creatureName) { res.status(400); throw new Error("Назва істоти обов'язкова"); }
+  async createCreature(req, res) {
+    const { 
+      creatureName, 
+      behaviour, 
+      health, 
+      speedMove, 
+      speedAttack, 
+      strengthAttack, 
+      description, 
+      biomes,
+      drops
+    } = req.body;
 
-    const newCreature = await creatureService.createCreature({ creatureName, behaviour, health, speedMove, speedAttack, strengthAttack, description });
-    res.status(201).json({ message: "Істоту створено", creature: newCreature });
-  });
+    if (!creatureName) {
+      res.status(400);
+      throw new Error("Назва істоти обов'язкова");
+    }
 
-  getAllCreatures = asyncHandler(async (req, res) => {
-    const creatures = await creatureService.getAllCreatures({
-      include: { creatureDrop: { include: { item: true } }, creatureBiome: true, creatureForSeason: true }
+    const newCreature = await creatureService.createCreature({
+      creatureName,
+      behaviour,
+      health,
+      speedMove,
+      speedAttack,
+      strengthAttack,
+      description,
+      biomes,
+      drops
     });
-    res.json(creatures);
-  });
 
-  getCreatureById = asyncHandler(async (req, res) => {
-    const { id } = req.params;
-    const creature = await creatureService.getCreatureById(Number(id), {
-      include: { creatureDrop: { include: { item: true } }, creatureBiome: true, creatureForSeason: true }
+    res.status(201).json({
+      message: "Істоту створено", 
+      creature: newCreature 
     });
-    if (!creature) { res.status(404); throw new Error("Істоту не знайдено"); }
-    res.json(creature);
-  });
+  }
 
-  updateCreature = asyncHandler(async (req, res) => {
+  async updateCreature(req, res) {
     const { id } = req.params;
-    const updatedCreature = await creatureService.updateCreature(Number(id), req.body);
-    res.json({ message: "Істоту оновлено", creature: updatedCreature });
-  });
+    const data = req.body;
+    const updatedCreature = await creatureService.updateCreature(id, data);
+    res.status(200).json(updatedCreature);
+  }
 
-  softDeleteCreature = asyncHandler(async (req, res) => {
+  async getAllCreatures(req, res) {
+    const data = await creatureService.getAllCreatures();
+    res.status(200).json(data);
+  }
+
+  async getCreatureById(req, res) {
+    const id = Number(req.params.id);
+    const creature = await creatureService.getCreatureById(id);
+    res.status(200).json(creature);
+  }
+
+  async softDeleteCreature(req, res) {
     const { id } = req.params;
-    await creatureService.softDeleteCreature(Number(id));
-    res.status(204).end();
-  });
+    const deletedCreature = await creatureService.softDeleteCreature(id);
+    res.status(200).json({ 
+      message: "Істоту видалено (soft delete)", 
+      creature: deletedCreature 
+    });
+  }
 }
 
 module.exports = new CreatureController();

@@ -1,5 +1,6 @@
 const creatureDropService = require("../services/creatureDropService");
 const asyncHandler = require("../utils/asyncHandler");
+const { prisma } = require("../prismaClient");
 
 class CreatureDropController {
   createDrop = asyncHandler(async (req, res) => {

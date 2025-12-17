@@ -1,5 +1,6 @@
 const gameCharacterService = require("../services/gameCharacterService");
 const asyncHandler = require("../utils/asyncHandler");
+const { prisma } = require("../prismaClient");
 
 class GameCharacterController {
   createCharacter = asyncHandler(async (req, res) => {

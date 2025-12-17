@@ -1,5 +1,6 @@
-const eventService = require("../services/eventService");
+const eventService = require("../services/eventsService");
 const asyncHandler = require("../utils/asyncHandler");
+const { prisma } = require("../prismaClient");
 
 class EventController {
   createEvent = asyncHandler(async (req, res) => {
