@@ -4,37 +4,95 @@ const { prisma } = require("../prismaClient");
 
 class SeasonController {
   createSeason = asyncHandler(async (req, res) => {
-    const { season_name, description } = req.body;
-    if (!season_name) { res.status(400); throw new Error("Назва сезону обов'язкова"); }
-
-    const newSeason = await seasonService.createSeason({ season_name, description });
-    res.status(201).json({ message: "Сезон створено", season: newSeason });
+    const { 
+      season_name, 
+      description, 
+      quantity_of_days, 
+      weather, 
+      creatureIds = [] 
+    } = req.body;
+    if (!season_name) {
+      res.status(400);
+      throw new Error("Назва сезону обов'язкова");
+    }
+    if (quantity_of_days === undefined) {
+      res.status(400);
+      throw new Error("Кількість днів сезону обов'язкова");
+    }
+    if (!weather) {
+      res.status(400);
+      throw new Error("Погода сезону обов'язкова");
+    }
+    const newSeason = await seasonService.createSeason({
+      season_name,
+      description,
+      quantity_of_days,
+      weather,
+      creatureIds,
+    });
+    res.status(201).json({ 
+      message: "Сезон створено", 
+      season: newSeason 
+    });
   });
 
   getAllSeasons = asyncHandler(async (req, res) => {
     const seasons = await seasonService.getAllSeasons({
-      include: { creatureForSeason: { include: { creature: true } }, eventForSeason: { include: { event: true } } }
+      include: { 
+        creatureForSeason: { 
+          include: { 
+            creature: true 
+          } 
+        }, 
+        eventForSeason: { 
+          include: { 
+            event: true 
+          } 
+        } 
+      }
     });
     res.json(seasons);
   });
 
   getSeasonById = asyncHandler(async (req, res) => {
-    const { id } = req.params;
+    const { 
+      id 
+    } = req.params;
     const season = await seasonService.getSeasonById(Number(id), {
-      include: { creatureForSeason: { include: { creature: true } }, eventForSeason: { include: { event: true } } }
+      include: { 
+        creatureForSeason: { 
+          include: { 
+            creature: true 
+          } 
+        }, 
+        eventForSeason: { 
+          include: { 
+            event: true 
+          } 
+        } 
+      }
     });
-    if (!season) { res.status(404); throw new Error("Сезон не знайдено"); }
+    if (!season) { 
+      res.status(404); throw new Error("Сезон не знайдено"); 
+    }
     res.json(season);
   });
 
   updateSeason = asyncHandler(async (req, res) => {
-    const { id } = req.params;
+    const { 
+      id 
+    } = req.params;
     const updatedSeason = await seasonService.updateSeason(Number(id), req.body);
-    res.json({ message: "Сезон оновлено", season: updatedSeason });
+    res.json({ 
+      message: "Сезон оновлено", 
+      season: updatedSeason 
+    });
   });
 
   deleteSeason = asyncHandler(async (req, res) => {
-    const { id } = req.params;
+    const { 
+      id 
+    } = req.params;
     await seasonService.deleteSeason(Number(id));
     res.status(204).end();
   });

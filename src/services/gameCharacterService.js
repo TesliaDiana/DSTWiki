@@ -14,12 +14,7 @@ class GameCharacterService {
       startItemIds = [],
       featureIds = [],
     } = data;
-
-    if (!character_name) {
-      const err = new Error("Назва персонажа обовʼязкова");
-      err.status = 400;
-      throw err;
-    }
+    if (!character_name) throw new Error("Назва події обов'язкова");
 
     return await prisma.gameCharacter.create({
       data: {
@@ -30,23 +25,17 @@ class GameCharacterService {
         speed_move,
         strength_attack,
         description,
-
-        ...(startItemIds.length > 0 && {
-          startitem: {
-            create: startItemIds.map((itemId) => ({
-              item_id: itemId,
-              quantity_of_resources: 1,
-            })),
-          },
-        }),
-
-        ...(featureIds.length > 0 && {
-          characterfeature: {
-            create: featureIds.map((featureId) => ({
-              feature_id: featureId,
-            })),
-          },
-        }),
+        startitem: {
+          create: startItemIds.map(id => ({
+            item_id: Number(id),
+            quantity_of_resources: 1,
+          }))
+        },
+        characterfeature: {
+          create: featureIds.map(id => ({
+            feature_id: Number(id)
+          }))
+        },
       },
       include: {
         startitem: {
@@ -76,7 +65,7 @@ class GameCharacterService {
     ]);
 
     return {
-      items: characters,
+      characters,
       stats: {
         totalCharacters: totalCount,
         totalFeaturesLinked: featureUsage,
@@ -85,33 +74,27 @@ class GameCharacterService {
     };
   }
 
-  async getCharacterById(id, prismaOptions = {}) {
-    const [
-      character,
-      featureCount,
-      startItemCount,
-    ] = await prisma.$transaction([
-      prisma.gameCharacter.findUnique({
-        where: { character_id: id },
-        ...prismaOptions,
-      }),
-      prisma.characterFeature.count({
-        where: { character_id: id },
-      }),
-      prisma.startItem.count({
-        where: { character_id: id },
-      }),
-    ]);
-
-    if (!character) return null;
-
-    return {
-      character,
-      stats: {
-        features: featureCount,
-        startItems: startItemCount,
+  async getCharacterById(id) {
+    const characterId = Number(id);
+    const character = await prisma.gameCharacter.findUnique({
+      where: { 
+        character_id: characterId 
       },
-    };
+      include: {
+        characterfeature: { 
+          include: { 
+            featureskill: true 
+          } 
+        },
+        startitem: { 
+          include: { 
+            item: true 
+          } 
+        },
+      },
+    });
+    if (!character) return null;
+    return character;
   }
 
   async updateCharacter(id, data) {

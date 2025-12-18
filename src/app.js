@@ -8,10 +8,8 @@ const structureRoutes = require("./routes/structuresRoutes");
 const seasonRoutes = require("./routes/seasonsRoutes");
 const itemRoutes = require("./routes/itemRoutes");
 const itemTypeRoutes = require("./routes/itemsTypesRoutes");
-const creatureDropRoutes = require("./routes/creatureDropRoutes");
-const itemsInBiomeRoutes = require("./routes/itemsInBiomeRoutes");
-const itemToItemTypeRoutes = require("./routes/itemToItemTypeRoutes");
 const eventRoutes = require("./routes/eventsRoutes");
+const featureSkillRoutes = require("./routes/featureSkillRoutes");
 const gameCharacterRoutes = require("./routes/gameCharacterRoutes");
 
 const errorHandler = require("./middleware/errorHandler");
@@ -33,10 +31,8 @@ app.use("/api/structures", structureRoutes);
 app.use("/api/seasons", seasonRoutes);
 app.use("/api/items", itemRoutes);
 app.use("/api/item-types", itemTypeRoutes);
-app.use("/api/creature-drops", creatureDropRoutes);
-app.use("/api/items-in-biomes", itemsInBiomeRoutes);
-app.use("/api/item-to-item-types", itemToItemTypeRoutes);
 app.use("/api/events", eventRoutes);
+app.use("/api/feature-skills", featureSkillRoutes);
 app.use("/api/game-characters", gameCharacterRoutes);
 
 app.get("/health", async (req, res) => {

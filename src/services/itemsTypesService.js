@@ -4,61 +4,93 @@ const prisma = new PrismaClient();
 class ItemTypeService {
   async createItemType(data) {
     const { item_type_name } = data;
+    if (!item_type_name) throw new Error("Назва типу предмету обов'язкова");
     return await prisma.itemsTypes.create({
-      data: { item_type_name },
-      include: {
-        itemToItemType: { include: { item: true } },
+      data: { 
+        item_type_name 
       },
     });
   }
 
-  async getAllItemTypes(prismaOptions = {}) {
-    const [types, totalCount, totalItemsLinked] = await prisma.$transaction([
-      prisma.itemsTypes.findMany({ orderBy: { item_type_id: "asc" }, ...prismaOptions }),
+  async getAllItemTypes() {
+    const [types, totalCount] = await prisma.$transaction([
+      prisma.itemsTypes.findMany({ 
+        orderBy: { 
+          item_type_id: "asc" 
+        }, 
+        include: { 
+          itemtoitemtype: { 
+            include: { 
+              item: true 
+            } 
+          } 
+        }
+      }),
       prisma.itemsTypes.count(),
-      prisma.itemToItemType.count(),
     ]);
-
     return {
       items: types,
-      stats: {
-        totalTypes: totalCount,
-        totalItemsLinked,
+      stats: { 
+        total: totalCount 
       },
     };
   }
 
-  async getItemTypeById(id, prismaOptions = {}) {
-    const [type, linkedItems] = await prisma.$transaction([
-      prisma.itemsTypes.findUnique({ where: { item_type_id: id }, ...prismaOptions }),
-      prisma.itemToItemType.count({ where: { item_type_id: id } }),
+  async getItemTypeById(id) {
+    const itemTypeId = Number(id);
+    const [type, linkedItemsCount] = await prisma.$transaction([
+      prisma.itemsTypes.findUnique({ 
+        where: { 
+          item_type_id: itemTypeId 
+        }, 
+        include: { 
+          itemtoitemtype: { 
+            include: { 
+              item: true 
+            } 
+          } 
+        } 
+      }),
+      prisma.itemToItemType.count({ 
+        where: { 
+          item_type_id: itemTypeId 
+        } 
+      }),
     ]);
-
     if (!type) return null;
-
     return {
       type,
-      stats: {
-        linkedItems,
+      stats: { 
+        linkedItems: linkedItemsCount 
       },
     };
   }
 
   async updateItemType(id, data) {
-    const { item_type_name } = data;
+    const itemTypeId = Number(id);
+    const { 
+      item_type_name 
+    } = data;
     return await prisma.itemsTypes.update({
-      where: { item_type_id: id },
-      data: { item_type_name },
-      include: { itemToItemType: { include: { item: true } } },
+      where: { 
+        item_type_id: itemTypeId 
+      },
+      data: { 
+        item_type_name 
+      },
     });
   }
 
   async deleteItemType(id) {
+    const itemTypeId = Number(id);
     const linkedItems = await prisma.itemToItemType.findMany({
-      where: { item_type_id: id },
-      include: { item: true },
+      where: { 
+        item_type_id: itemTypeId 
+      },
+      include: { 
+        item: true 
+      },
     });
-
     if (linkedItems.length > 0) {
       const error = new Error(
         `Неможливо видалити тип предмету. Пов’язані предмети: ${linkedItems.map(i => i.item.item_name).join(", ") || "—"}`
@@ -66,8 +98,11 @@ class ItemTypeService {
       error.status = 409;
       throw error;
     }
-
-    return await prisma.itemsTypes.delete({ where: { item_type_id: id } });
+    return prisma.itemsTypes.delete({ 
+      where: { 
+        item_type_id: itemTypeId 
+      } 
+    });
   }
 }
 

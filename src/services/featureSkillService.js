@@ -4,10 +4,10 @@ const prisma = new PrismaClient();
 class FeatureSkillService {
   async createFeature(data) {
     const { feature_skill } = data;
-
+    if (!feature_skill) throw new Error("Назва фічі обов'язкова");
     return await prisma.featureSkill.create({
-      data: {
-        feature_skill,
+      data: { 
+        feature_skill 
       },
     });
   }
@@ -15,72 +15,83 @@ class FeatureSkillService {
   async getAllFeatures() {
     const [features, totalCount] = await prisma.$transaction([
       prisma.featureSkill.findMany({
-        orderBy: { id: "asc" },
+        orderBy: { 
+          feature_id: "asc" 
+        },
       }),
       prisma.featureSkill.count(),
     ]);
-
     return {
       items: features,
-      stats: {
-        total: totalCount,
+      stats: { 
+        total: totalCount 
       },
     };
   }
 
   async getFeatureById(id) {
-    const [
-      feature,
-      usageCount,
-    ] = await prisma.$transaction([
-      prisma.featureSkill.findUnique({
-        where: { feature_id: id },
-      }),
-      prisma.characterFeature.count({
-        where: { feature_id: id },
-      }),
-    ]);
-
-    if (!feature) return null;
-
-    return {
-      feature,
-      stats: {
-        usedByCharacters: usageCount,
+    const featureId = Number(id);
+    const feature = await prisma.featureSkill.findUnique({
+      where: { 
+        feature_id: featureId 
       },
-    };
+    });
+    if (!feature) return null;
+    return feature;
   }
 
   async updateFeature(id, data) {
-    const { feature_skill } = data;
-
+    const featureId = Number(id);
+    const { 
+      feature_skill 
+    } = data;
     return await prisma.featureSkill.update({
-      where: { feature_id: id },
-      data: {
-        feature_skill,
+      where: { 
+        feature_id: featureId 
+      },
+      data: { 
+        feature_skill 
       },
     });
   }
 
   async deleteFeature(id) {
-    const usage = await prisma.characterFeature.findMany({
-      where: { feature_id: id },
-      include: { character: true },
+    const featureId = Number(id);
+    const feature = await prisma.featureSkill.findUnique({
+      where: { 
+        feature_id: featureId 
+      },
+    });
+    if (!feature) {
+      const error = new Error("Фічу не знайдено");
+      error.status = 404;
+      throw error;
+    }
+    const usedInCharacters = await prisma.characterFeature.findMany({
+      where: {
+        feature_id: featureId 
+      },
+      include: {
+        gamecharacter: true,
+      },
     });
 
-    if (usage.length > 0) {
+    if (usedInCharacters.length > 0) {
       const error = new Error(
         `Неможливо видалити фічу.
-Використовується персонажами: ${usage
-          .map((u) => u.character.name)
-          .join(", ")}`
+  Використовується персонажами: ${
+          usedInCharacters
+            .map(cf => cf.gamecharacter.character_name)
+            .join(", ")
+        }`
       );
       error.status = 409;
       throw error;
     }
-
-    return await prisma.featureSkill.delete({
-      where: { feature_id: id },
+    return prisma.featureSkill.delete({
+      where: { 
+        feature_id: featureId 
+      },
     });
   }
 }

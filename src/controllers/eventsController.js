@@ -1,39 +1,59 @@
-const eventService = require("../services/eventsService");
 const asyncHandler = require("../utils/asyncHandler");
-const { prisma } = require("../prismaClient");
+const eventService = require("../services/eventsService");
 
 class EventController {
-  createEvent = asyncHandler(async (req, res) => {
-    const { event_name, description } = req.body;
-    if (!event_name) { res.status(400); throw new Error("Назва події обов'язкова"); }
+  async createEvent(req, res) {
+    const {
+      eventName,
+      description,
+      seasonIds,
+      structureIds,
+      summonCreatures,
+    } = req.body;
 
-    const newEvent = await eventService.createEvent({ event_name, description });
-    res.status(201).json({ message: "Подію створено", event: newEvent });
-  });
+    const event = await eventService.createEvent({
+      eventName,
+      description,
+      seasonIds,
+      structureIds,
+      summonCreatures,
+    });
 
-  getAllEvents = asyncHandler(async (req, res) => {
-    const events = await eventService.getAllEvents({ include: { eventForSeason: { include: { season: true } }, structureEvent: { include: { structure: true } } } });
-    res.json(events);
-  });
+    res.status(201).json({
+      message: "Подію створено",
+      event,
+    });
+  }
 
-  getEventById = asyncHandler(async (req, res) => {
+  async getAllEvents(req, res) {
+    const data = await eventService.getAllEvents();
+    res.status(200).json(data);
+  };
+
+  async getEventById(req, res) {
     const { id } = req.params;
-    const event = await eventService.getEventById(Number(id), { include: { eventForSeason: { include: { season: true } }, structureEvent: { include: { structure: true } } } });
-    if (!event) { res.status(404); throw new Error("Подію не знайдено"); }
-    res.json(event);
-  });
+    const event = await eventService.getEventById(id);
+    if (!event) { 
+      res.status(404); 
+      throw new Error("Подію не знайдено"); 
+    }
+    res.status(200).json(event);
+  };
 
-  updateEvent = asyncHandler(async (req, res) => {
+  async updateEvent(req, res) {
     const { id } = req.params;
-    const updatedEvent = await eventService.updateEvent(Number(id), req.body);
-    res.json({ message: "Подію оновлено", event: updatedEvent });
-  });
+    const updatedEvent = await eventService.updateEvent(id, req.body);
+    res.status(200).json({ 
+      message: "Подію оновлено", 
+      event: updatedEvent 
+    });
+  };
 
-  deleteEvent = asyncHandler(async (req, res) => {
+  async deleteEvent(req, res) {
     const { id } = req.params;
-    await eventService.deleteEvent(Number(id));
+    await eventService.deleteEvent(id);
     res.status(204).end();
-  });
+  };
 }
 
 module.exports = new EventController();

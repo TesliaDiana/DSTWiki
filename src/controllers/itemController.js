@@ -4,22 +4,26 @@ const { prisma } = require("../prismaClient");
 
 class ItemController {
   createItem = asyncHandler(async (req, res) => {
-    const { item_name, max_stack, durability, recipe_id, description } = req.body;
-
-    if (!item_name) {
-      res.status(400);
-      throw new Error("Назва предмету обов'язкова");
-    }
-
+    const { 
+      item_name, 
+      max_stack, 
+      durability, 
+      recipe_id, 
+      description, 
+      typeIds,
+      biomeIds,
+    } = req.body;
     const newItem = await itemService.createItem({
       item_name,
       max_stack,
       durability,
       recipe_id,
       description,
+      typeIds,
+      biomeIds,
     });
 
-    res.status(201).json({ message: "Предмет створено", item: newItem });
+    res.status(201).json({ message: "Предмет створено", newItem });
   });
 
   getAllItems = asyncHandler(async (req, res) => {
@@ -39,8 +43,7 @@ class ItemController {
 
   updateItem = asyncHandler(async (req, res) => {
     const { id } = req.params;
-    const data = req.body;
-    const updatedItem = await itemService.updateItem(Number(id), data);
+    const updatedItem = await itemService.updateItem(id, req.body);
     res.json({ message: "Предмет оновлено", item: updatedItem });
   });
 
