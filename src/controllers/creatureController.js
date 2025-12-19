@@ -56,6 +56,16 @@ class CreatureController {
     res.status(200).json(creature);
   }
 
+  async getCreatureDropCount(req, res) {
+    const { id } = req.params;
+    try {
+      const result = await creatureService.countDrops(id);
+      res.status(200).json(result);
+    } catch (err) {
+      res.status(err.status || 500).json({ message: err.message });
+    }
+  }
+  
   async softDeleteCreature(req, res) {
     const { id } = req.params;
     const deletedCreature = await creatureService.softDeleteCreature(id);

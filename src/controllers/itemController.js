@@ -41,6 +41,16 @@ class ItemController {
     res.json(item);
   });
 
+  async getItemsCountInBiome(req, res) {
+    const { biomeId } = req.params;
+    try {
+      const result = await itemService.countItemsInBiome(biomeId);
+      res.status(200).json(result);
+    } catch (err) {
+      res.status(err.status || 500).json({ message: err.message });
+    }
+  }
+
   updateItem = asyncHandler(async (req, res) => {
     const { id } = req.params;
     const updatedItem = await itemService.updateItem(id, req.body);

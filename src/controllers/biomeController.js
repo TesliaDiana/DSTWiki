@@ -45,10 +45,15 @@ class BiomeController {
     res.status(200).json(biome);
   }
 
-  async deleteBiome(req, res) {
+  async deleteBiome(req, res, next) {
+    try {
     const id = Number(req.params.id);
     await biomeService.deleteBiome(id);
     res.status(204).end();
+    } catch (err) {
+    res.status(409);     
+    next(err);           
+    }
   }
 }
 

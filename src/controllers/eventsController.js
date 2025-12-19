@@ -49,10 +49,15 @@ class EventController {
     });
   };
 
-  async deleteEvent(req, res) {
-    const { id } = req.params;
-    await eventService.deleteEvent(id);
-    res.status(204).end();
+  async deleteEvent(req, res, next) {
+    try {
+      const id = Number(req.params.id);
+      await eventService.deleteEvent(id);
+      res.status(204).end();
+    } catch (err) {
+      res.status(409);     
+      next(err);           
+    }
   };
 }
 

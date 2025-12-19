@@ -108,6 +108,13 @@ class ItemService {
     };
   }
 
+  async countItemsInBiome(biomeId) {
+    const count = await prisma.itemsInBiome.count({
+      where: { biome_id: Number(biomeId) }
+    });
+    return { biomeId: Number(biomeId), itemCount: count };
+  }
+  
   async updateItem(id, data) {
     const itemId = Number(id);
     const { 

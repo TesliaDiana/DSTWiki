@@ -88,6 +88,13 @@ class CreatureService {
     });
   }
 
+  async countDrops(creatureId) {
+    const dropCount = await prisma.creatureDrop.count({
+      where: { creature_id: Number(creatureId) }
+    });
+    return { creatureId: Number(creatureId), dropCount };
+  }
+
   async updateCreature(id, data) {
     const creatureId = Number(id);
     const {
